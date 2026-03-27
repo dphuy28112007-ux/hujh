@@ -2,79 +2,75 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>AI Language Buddy</title>
-
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Language Buddy</title>
 
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:#eef2ff;
+font-family:system-ui;
+background:#343541;
+color:#fff;
 display:flex;
 flex-direction:column;
 height:100vh;
 }
-
 header{
-background:#4f46e5;
-color:#fff;
 padding:15px;
 text-align:center;
+background:#202123;
 font-weight:bold;
-font-size:18px;
 }
-
 #chat{
 flex:1;
 overflow:auto;
-padding:10px;
+padding:15px;
 }
-
 .msg{
-max-width:75%;
-padding:10px;
-margin:6px;
-border-radius:15px;
-line-height:1.4;
+max-width:800px;
+margin:auto;
+padding:15px;
+margin-bottom:10px;
+border-radius:8px;
+line-height:1.5;
+white-space:pre-line;
 }
-
-.user{
-background:#4f46e5;
-color:#fff;
-margin-left:auto;
-}
-
-.bot{
-background:#fff;
-}
+.user{background:#444654;}
+.bot{background:#343541;border-bottom:1px solid #555;}
 
 #inputArea{
 display:flex;
-padding:10px;
-background:#fff;
-border-top:1px solid #ddd;
+padding:15px;
+background:#40414f;
 }
-
 input{
 flex:1;
-padding:10px;
-border-radius:10px;
-border:1px solid #ccc;
-}
-
-button{
-margin-left:5px;
-padding:10px;
+padding:12px;
+border-radius:8px;
 border:none;
-border-radius:10px;
-background:#4f46e5;
+outline:none;
+}
+button{
+margin-left:8px;
+padding:10px 15px;
+border:none;
+border-radius:8px;
+background:#10a37f;
 color:#fff;
 cursor:pointer;
 }
+button:hover{background:#0e8f6f;}
 
-button:hover{
-background:#4338ca;
+.loading{display:flex;gap:5px;}
+.dot{
+width:6px;height:6px;background:#aaa;border-radius:50%;
+animation:blink 1.4s infinite;
+}
+.dot:nth-child(2){animation-delay:0.2s;}
+.dot:nth-child(3){animation-delay:0.4s;}
+@keyframes blink{
+0%,80%,100%{opacity:0}
+40%{opacity:1}
 }
 </style>
 </head>
@@ -82,120 +78,158 @@ background:#4338ca;
 <body>
 
 <header>🤖 AI Language Buddy</header>
-
 <div id="chat"></div>
 
 <div id="inputArea">
-<input id="input" placeholder="Type your English...">
+<input id="input" placeholder="Type in English..." />
 <button onclick="send()">Send</button>
 <button onclick="voice()">🎤</button>
 </div>
 
 <script>
 
-// MEMORY
-let memory=[];
+// ===== MEMORY =====
+let memory = [];
 
-// RANDOM CHAT RESPONSES
-const replies=[
-"That's interesting 😊 Tell me more!",
-"Nice! 👍 What happened next?",
-"Really? Can you explain more?",
-"Great! Why do you think that?",
-"I see! Keep going 👀"
+// ===== SMART PATTERNS (giống AI thật) =====
+const patterns = [
+{keys:["hello","hi","hey"],res:["Hi 👋 How are you?","Hello 😄 Tell me about your day!"]},
+{keys:["i am","i'm"],res:["Why do you feel that way?","Tell me more 😊"]},
+{keys:["i like"],res:["Nice 👍 Why do you like it?","Cool 😎 Tell me more!"]},
+{keys:["because"],res:["Good reason 👍 Explain more!"]},
+{keys:["i want"],res:["Great goal 💪 How will you do it?"]},
+{keys:["i feel"],res:["Why do you feel like that?"]},
 ];
 
-// CORRECTIONS
-const corrections=[
-["i go yesterday","I went yesterday"],
-["she don't","She doesn't"],
-["he have","He has"],
-["i am go","I am going"],
-["i no","I don't"],
-["i very","I am very"],
-["i want go","I want to go"],
-["i have 20 years old","I am 20 years old"]
-];
+// ===== CORRECTION =====
+function fix(text){
+if(text.includes("i go yesterday")) return "😉 Correction: I went yesterday";
+if(text.includes("she don't")) return "😉 Correction: She doesn't";
+if(text.includes("i very like")) return "😉 Correction: I really like";
+if(text.includes("i want go")) return "😉 Correction: I want to go";
+return null;
+}
 
-// AI FUNCTION
+// ===== AI =====
 function ai(text){
-
-let t=text.toLowerCase();
+let t = text.toLowerCase();
 memory.push(t);
 
 // sửa lỗi
-for(let c of corrections){
-if(t.includes(c[0])){
-return "😉 Correction:\n"+c[1]+"\n\n👉 Tell me more!";
+let f = fix(t);
+if(f) return f + "\n👉 Try again!";
+
+// pattern
+for(let p of patterns){
+for(let k of p.keys){
+if(t.includes(k)){
+return random(p.res);
 }
 }
-
-// chat cơ bản
-if(t.includes("hello")||t.includes("hi"))
-return "Hi 👋 I'm Buddy! Let's practice English!";
-
-if(t.includes("how are you"))
-return "I'm great 😄 How about you?";
-
-if(t.includes("your name"))
-return "I'm Buddy 🤖 your AI partner!";
-
-// dùng memory
-if(memory.length>1){
-return random(replies)+"\n(I'm remembering our conversation 😉)";
 }
 
-return random(replies);
+// context
+if(memory.length > 3){
+return "Interesting 🤔 Tell me more details!";
 }
 
-// RANDOM
+// fallback
+return "👉 Try to write a longer sentence!";
+}
+
+// ===== RANDOM =====
 function random(arr){
 return arr[Math.floor(Math.random()*arr.length)];
 }
 
-// SEND MESSAGE
+// ===== UI =====
+function add(text,type){
+let d=document.createElement("div");
+d.className="msg "+type;
+d.innerText=text;
+document.getElementById("chat").appendChild(d);
+scroll();
+return d;
+}
+
+function addLoading(){
+let d=document.createElement("div");
+d.className="msg bot";
+d.innerHTML=`
+<div class="loading">
+<div class="dot"></div>
+<div class="dot"></div>
+<div class="dot"></div>
+</div>`;
+document.getElementById("chat").appendChild(d);
+scroll();
+return d;
+}
+
+function removeLoading(el){el.remove();}
+
+function scroll(){
+let chat=document.getElementById("chat");
+chat.scrollTop=chat.scrollHeight;
+}
+
+// ===== SEND =====
 function send(){
+let input=document.getElementById("input");
 let text=input.value.trim();
 if(!text) return;
 
 add(text,"user");
 input.value="";
 
-let res=ai(text);
+let load=addLoading();
 
 setTimeout(()=>{
+removeLoading(load);
+let res=ai(text);
 add(res,"bot");
 speak(res);
-},400);
+save();
+},600);
 }
 
-// UI
-function add(text,type){
-let d=document.createElement("div");
-d.className="msg "+type;
-d.innerText=text;
-chat.appendChild(d);
-chat.scrollTop=chat.scrollHeight;
-}
+// ENTER
+document.getElementById("input").addEventListener("keypress",e=>{
+if(e.key==="Enter") send();
+});
 
-// VOICE INPUT
+// ===== VOICE =====
 function voice(){
 let rec=new (webkitSpeechRecognition||SpeechRecognition)();
 rec.lang="en-US";
 rec.onresult=e=>{
-input.value=e.results[0][0].transcript;
+document.getElementById("input").value=e.results[0][0].transcript;
 };
 rec.start();
 }
 
-// VOICE OUTPUT
+// ===== SPEAK =====
 function speak(text){
 let u=new SpeechSynthesisUtterance(text);
 u.lang="en-US";
 speechSynthesis.speak(u);
 }
 
+// ===== SAVE CHAT =====
+function save(){
+localStorage.setItem("chat", document.getElementById("chat").innerHTML);
+}
+
+// ===== LOAD CHAT =====
+window.onload = () => {
+let saved = localStorage.getItem("chat");
+if(saved) document.getElementById("chat").innerHTML = saved;
+};
+
 </script>
+
+<!-- ===== TIDIO (DÁN CODE CỦA BẠN VÀO ĐÂY) ===== -->
+<script src="//code.tidio.co/xxxxx.js" async></script>
 
 </body>
 </html>
