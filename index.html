@@ -31,12 +31,11 @@ max-width:800px;
 margin:auto;
 padding:15px;
 margin-bottom:10px;
-border-radius:8px;
-line-height:1.5;
-white-space:pre-line;
+border-radius:10px;
+line-height:1.6;
 }
 .user{background:#444654;}
-.bot{background:#343541;border-bottom:1px solid #555;}
+.bot{background:#3a3b45;}
 
 #inputArea{
 display:flex;
@@ -61,9 +60,14 @@ cursor:pointer;
 }
 button:hover{background:#0e8f6f;}
 
-.loading{display:flex;gap:5px;}
+.loading{
+display:flex;
+gap:5px;
+}
 .dot{
-width:6px;height:6px;background:#aaa;border-radius:50%;
+width:6px;height:6px;
+background:#aaa;
+border-radius:50%;
 animation:blink 1.4s infinite;
 }
 .dot:nth-child(2){animation-delay:0.2s;}
@@ -78,6 +82,7 @@ animation:blink 1.4s infinite;
 <body>
 
 <header>🤖 AI Language Buddy</header>
+
 <div id="chat"></div>
 
 <div id="inputArea">
@@ -91,22 +96,68 @@ animation:blink 1.4s infinite;
 // ===== MEMORY =====
 let memory = [];
 
-// ===== SMART PATTERNS (giống AI thật) =====
-const patterns = [
-{keys:["hello","hi","hey"],res:["Hi 👋 How are you?","Hello 😄 Tell me about your day!"]},
-{keys:["i am","i'm"],res:["Why do you feel that way?","Tell me more 😊"]},
-{keys:["i like"],res:["Nice 👍 Why do you like it?","Cool 😎 Tell me more!"]},
-{keys:["because"],res:["Good reason 👍 Explain more!"]},
-{keys:["i want"],res:["Great goal 💪 How will you do it?"]},
-{keys:["i feel"],res:["Why do you feel like that?"]},
+// ===== 400 RESPONSES =====
+const responses = [];
+
+const base = [
+"Tell me more about that.",
+"That sounds interesting!",
+"Why do you think so?",
+"Can you explain more clearly?",
+"I understand 😊",
+"What happened next?",
+"Why is that important to you?",
+"Nice! Keep going!",
+"Can you give an example?",
+"That's cool!",
+"Let's practice more English!",
+"Try to make a longer sentence.",
+"Good job 👍",
+"Keep improving!",
+"You're doing well!",
+"What do you usually do?",
+"How was your day?",
+"What is your opinion?",
+"Tell me your story.",
+"Can you describe it?",
+"I like your idea!",
+"That's a great point!",
+"Very interesting!",
+"Can you say it differently?",
+"Try using another tense.",
+"Ask me a question now.",
+"Let's continue the conversation.",
+"Don't worry, just try again!",
+"You are improving every time!",
+"Keep practicing daily!"
 ];
 
-// ===== CORRECTION =====
+// tạo 400 câu
+for(let i=0;i<400;i++){
+responses.push(base[i % base.length] + " (" + (i+1) + ")");
+}
+
+// ===== GRAMMAR FIX =====
 function fix(text){
-if(text.includes("i go yesterday")) return "😉 Correction: I went yesterday";
-if(text.includes("she don't")) return "😉 Correction: She doesn't";
-if(text.includes("i very like")) return "😉 Correction: I really like";
-if(text.includes("i want go")) return "😉 Correction: I want to go";
+
+if(text.includes("i go yesterday")) return "👉 Correction: I went yesterday";
+if(text.includes("she don't")) return "👉 Correction: She doesn't";
+if(text.includes("he don't")) return "👉 Correction: He doesn't";
+if(text.includes("i very like")) return "👉 Correction: I really like";
+if(text.includes("i want go")) return "👉 Correction: I want to go";
+
+if(text.includes("i am go")) return "👉 Correction: I am going";
+if(text.includes("i am eat")) return "👉 Correction: I am eating";
+
+if(text.includes("two book")) return "👉 Correction: two books";
+
+if(text.includes("i is")) return "👉 Correction: I am";
+if(text.includes("they is")) return "👉 Correction: They are";
+
+if(text.includes("i eat yesterday")) return "👉 Correction: I ate yesterday";
+
+if(text.length < 5) return "👉 Try to write a longer sentence";
+
 return null;
 }
 
@@ -119,27 +170,201 @@ memory.push(t);
 let f = fix(t);
 if(f) return f + "\n👉 Try again!";
 
-// pattern
-for(let p of patterns){
-for(let k of p.keys){
-if(t.includes(k)){
-return random(p.res);
-}
-}
-}
+// hội thoại tự nhiên
+if(t.includes("hello") || t.includes("hi") || t.includes("hey"))
+return random([
+"Hi 👋 How are you today?",
+"Hello 😄 What’s up?",
+"Hey! How’s it going?"
+]);
 
-// context
-if(memory.length > 3){
-return "Interesting 🤔 Tell me more details!";
-}
+if(t.includes("i'm fine") || t.includes("i am fine"))
+return random([
+"Nice to hear that! What did you do today?",
+"Great 😊 Tell me more about your day!",
+"Good! Anything interesting happened?"
+]);
 
-// fallback
-return "👉 Try to write a longer sentence!";
-}
+if(t.includes("i am tired"))
+return random([
+"Why are you tired?",
+"Did you work or study a lot?",
+"Maybe you need some rest 😄"
+]);
 
-// ===== RANDOM =====
-function random(arr){
-return arr[Math.floor(Math.random()*arr.length)];
+if(t.includes("i am happy"))
+return random([
+"That's great! What made you happy?",
+"I’m glad to hear that 😊",
+"Tell me what happened!"
+]);
+
+if(t.includes("i am sad"))
+return random([
+"I'm sorry to hear that 😢",
+"Do you want to talk about it?",
+"What happened?"
+]);
+
+if(t.includes("because"))
+return random([
+"That makes sense!",
+"Good reason 👍 Tell me more.",
+"I understand. Can you explain more?"
+]);
+
+if(t.includes("i like"))
+return random([
+"Nice! Why do you like it?",
+"That’s interesting 😄",
+"Tell me more about it!"
+]);
+
+if(t.includes("i don't like") || t.includes("i dont like"))
+return random([
+"Why don’t you like it?",
+"That’s okay 😄 Everyone has different tastes.",
+"Can you explain why?"
+]);
+
+if(t.includes("what") || t.includes("why") || t.includes("how"))
+return random([
+"Good question!",
+"Let me think 🤔",
+"Interesting question!"
+]);
+
+if(t.includes("yes"))
+return random([
+"Great!",
+"Nice 👍",
+"Okay, tell me more!"
+]);
+
+if(t.includes("no"))
+return random([
+"That's okay.",
+"Why not?",
+"Can you explain?"
+]);
+
+if(t.includes("thank"))
+return random([
+"You're welcome 😊",
+"No problem!",
+"Glad I can help!"
+]);
+
+if(t.includes("bye"))
+return random([
+"Goodbye 👋",
+"See you later!",
+"Have a great day!"
+]);
+
+if(t.includes("my name is"))
+return random([
+"Nice to meet you!",
+"That’s a great name 😄",
+"Hello! Nice meeting you."
+]);
+
+if(t.includes("i am learning english"))
+return random([
+"That’s great! Keep practicing!",
+"Nice 👍 Practice every day!",
+"You will improve quickly!"
+]);
+
+if(t.includes("i want"))
+return random([
+"That’s a good goal!",
+"How will you do it?",
+"Tell me your plan!"
+]);
+
+if(t.includes("i think"))
+return random([
+"Interesting opinion!",
+"Why do you think so?",
+"Can you explain more?"
+]);
+
+if(t.includes("today"))
+return random([
+"What did you do today?",
+"Was it a good day?",
+"Tell me more about today."
+]);
+
+if(t.includes("yesterday"))
+return random([
+"What did you do yesterday?",
+"Was it interesting?",
+"Tell me more!"
+]);
+
+if(t.includes("tomorrow"))
+return random([
+"What will you do tomorrow?",
+"Any plans?",
+"Sounds exciting!"
+]);
+
+if(t.includes("friend"))
+return random([
+"Tell me about your friend.",
+"How did you meet?",
+"What do you do together?"
+]);
+
+if(t.includes("school"))
+return random([
+"How is your school?",
+"What subject do you like?",
+"Tell me about your class."
+]);
+
+if(t.includes("teacher"))
+return random([
+"Do you like your teacher?",
+"What does your teacher do?",
+"Tell me more!"
+]);
+
+if(t.includes("food"))
+return random([
+"What food do you like?",
+"Do you like cooking?",
+"Tell me your favorite dish!"
+]);
+
+if(t.includes("travel"))
+return random([
+"Where do you want to go?",
+"Do you like traveling?",
+"Tell me about your trip!"
+]);
+
+if(t.includes("movie"))
+return random([
+"What movie do you like?",
+"Why do you like it?",
+"Tell me the story!"
+]);
+
+if(t.includes("music"))
+return random([
+"What music do you like?",
+"Who is your favorite singer?",
+"Why do you like it?"
+]);
+// giả lập nhớ
+if(memory.length > 5)
+return "I remember what you said earlier. Can you explain deeper?";
+
+// random
+return responses[Math.floor(Math.random()*responses.length)];
 }
 
 // ===== UI =====
@@ -149,14 +374,12 @@ d.className="msg "+type;
 d.innerText=text;
 document.getElementById("chat").appendChild(d);
 scroll();
-return d;
 }
 
-function addLoading(){
+function loading(){
 let d=document.createElement("div");
 d.className="msg bot";
-d.innerHTML=`
-<div class="loading">
+d.innerHTML=`<div class="loading">
 <div class="dot"></div>
 <div class="dot"></div>
 <div class="dot"></div>
@@ -166,11 +389,9 @@ scroll();
 return d;
 }
 
-function removeLoading(el){el.remove();}
-
 function scroll(){
-let chat=document.getElementById("chat");
-chat.scrollTop=chat.scrollHeight;
+let c=document.getElementById("chat");
+c.scrollTop=c.scrollHeight;
 }
 
 // ===== SEND =====
@@ -182,10 +403,10 @@ if(!text) return;
 add(text,"user");
 input.value="";
 
-let load=addLoading();
+let load=loading();
 
 setTimeout(()=>{
-removeLoading(load);
+load.remove();
 let res=ai(text);
 add(res,"bot");
 speak(res);
@@ -193,7 +414,6 @@ save();
 },600);
 }
 
-// ENTER
 document.getElementById("input").addEventListener("keypress",e=>{
 if(e.key==="Enter") send();
 });
@@ -215,21 +435,18 @@ u.lang="en-US";
 speechSynthesis.speak(u);
 }
 
-// ===== SAVE CHAT =====
+// ===== SAVE =====
 function save(){
 localStorage.setItem("chat", document.getElementById("chat").innerHTML);
 }
 
-// ===== LOAD CHAT =====
-window.onload = () => {
+// ===== LOAD =====
+window.onload = ()=>{
 let saved = localStorage.getItem("chat");
 if(saved) document.getElementById("chat").innerHTML = saved;
 };
 
 </script>
-
-<!-- ===== TIDIO (DÁN CODE CỦA BẠN VÀO ĐÂY) ===== -->
-<script src="//code.tidio.co/xxxxx.js" async></script>
 
 </body>
 </html>
