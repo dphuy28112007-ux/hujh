@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Language Buddy</title>
+<title>AI English Buddy</title>
 
 <style>
 body{
@@ -81,7 +81,7 @@ animation:blink 1.4s infinite;
 
 <body>
 
-<header>🤖 AI Language Buddy</header>
+<header>🤖 AI English Buddy</header>
 
 <div id="chat"></div>
 
@@ -96,9 +96,13 @@ animation:blink 1.4s infinite;
 // ===== MEMORY =====
 let memory = [];
 
+// ===== RANDOM =====
+function random(arr){
+return arr[Math.floor(Math.random()*arr.length)];
+}
+
 // ===== 400 RESPONSES =====
 const responses = [];
-
 const base = [
 "Tell me more about that.",
 "That sounds interesting!",
@@ -132,7 +136,6 @@ const base = [
 "Keep practicing daily!"
 ];
 
-// tạo 400 câu
 for(let i=0;i<400;i++){
 responses.push(base[i % base.length] + " (" + (i+1) + ")");
 }
@@ -145,15 +148,11 @@ if(text.includes("she don't")) return "👉 Correction: She doesn't";
 if(text.includes("he don't")) return "👉 Correction: He doesn't";
 if(text.includes("i very like")) return "👉 Correction: I really like";
 if(text.includes("i want go")) return "👉 Correction: I want to go";
-
 if(text.includes("i am go")) return "👉 Correction: I am going";
 if(text.includes("i am eat")) return "👉 Correction: I am eating";
-
 if(text.includes("two book")) return "👉 Correction: two books";
-
 if(text.includes("i is")) return "👉 Correction: I am";
 if(text.includes("they is")) return "👉 Correction: They are";
-
 if(text.includes("i eat yesterday")) return "👉 Correction: I ate yesterday";
 
 if(text.length < 5) return "👉 Try to write a longer sentence";
@@ -170,7 +169,8 @@ memory.push(t);
 let f = fix(t);
 if(f) return f + "\n👉 Try again!";
 
-// hội thoại tự nhiên
+// ===== NATURAL CONVERSATION =====
+
 if(t.includes("hello") || t.includes("hi") || t.includes("hey"))
 return random([
 "Hi 👋 How are you today?",
@@ -311,59 +311,11 @@ return random([
 "Sounds exciting!"
 ]);
 
-if(t.includes("friend"))
-return random([
-"Tell me about your friend.",
-"How did you meet?",
-"What do you do together?"
-]);
-
-if(t.includes("school"))
-return random([
-"How is your school?",
-"What subject do you like?",
-"Tell me about your class."
-]);
-
-if(t.includes("teacher"))
-return random([
-"Do you like your teacher?",
-"What does your teacher do?",
-"Tell me more!"
-]);
-
-if(t.includes("food"))
-return random([
-"What food do you like?",
-"Do you like cooking?",
-"Tell me your favorite dish!"
-]);
-
-if(t.includes("travel"))
-return random([
-"Where do you want to go?",
-"Do you like traveling?",
-"Tell me about your trip!"
-]);
-
-if(t.includes("movie"))
-return random([
-"What movie do you like?",
-"Why do you like it?",
-"Tell me the story!"
-]);
-
-if(t.includes("music"))
-return random([
-"What music do you like?",
-"Who is your favorite singer?",
-"Why do you like it?"
-]);
-// giả lập nhớ
+// ===== MEMORY =====
 if(memory.length > 5)
-return "I remember what you said earlier. Can you explain deeper?";
+return "I remember something you said earlier. Can you explain deeper?";
 
-// random
+// ===== DEFAULT =====
 return responses[Math.floor(Math.random()*responses.length)];
 }
 
